@@ -3,13 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
 import SearchBar from "@/components/SearchBar";
-import BrandFilter from "@/components/BrandFilter";
 import PhoneCard from "@/components/PhoneCard";
 import { Loader2, Smartphone } from "lucide-react";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
 
   const { data: phones, isLoading } = useQuery({
     queryKey: ["phones"],
@@ -24,23 +22,14 @@ const Index = () => {
     },
   });
 
-  // Get unique brands
-  const brands = useMemo(() => {
-    if (!phones) return [];
-    const uniqueBrands = [...new Set(phones.map((p) => p.brand))];
-    return uniqueBrands.sort();
-  }, [phones]);
-
-  // Filter phones
+  // Filter phones by search
   const filteredPhones = useMemo(() => {
     if (!phones) return [];
     return phones.filter((phone) => {
-      const matchesSearch = phone.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        phone.brand.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesBrand = !selectedBrand || phone.brand === selectedBrand;
-      return matchesSearch && matchesBrand;
+      const matchesSearch = phone.name.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesSearch;
     });
-  }, [phones, searchQuery, selectedBrand]);
+  }, [phones, searchQuery]);
 
   return (
     <Layout>
@@ -52,7 +41,7 @@ const Index = () => {
               Find Your Perfect <span className="text-primary text-glow">Phone</span>
             </h1>
             <p className="text-lg text-muted-foreground">
-              Compare prices, specs, and AI-powered reviews for the latest smartphones
+              Compare prices and find the best deals on the latest smartphones
             </p>
           </div>
           
@@ -60,18 +49,9 @@ const Index = () => {
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
-            placeholder="Search phones by name or brand..."
+            placeholder="Search phones by name..."
           />
         </div>
-      </section>
-
-      {/* Brand Filter */}
-      <section className="container mx-auto px-4 -mt-4">
-        <BrandFilter
-          brands={brands}
-          selectedBrand={selectedBrand}
-          onSelect={setSelectedBrand}
-        />
       </section>
 
       {/* Phone Grid */}
@@ -87,14 +67,14 @@ const Index = () => {
               No phones found
             </h3>
             <p className="text-muted-foreground">
-              Try adjusting your search or filter criteria
+              Try adjusting your search criteria
             </p>
           </div>
         ) : (
           <>
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-display text-xl font-semibold text-foreground">
-                {selectedBrand ? `${selectedBrand} Phones` : "All Phones"}
+                All Phones
               </h2>
               <span className="text-sm text-muted-foreground">
                 {filteredPhones.length} {filteredPhones.length === 1 ? "phone" : "phones"}
@@ -109,12 +89,12 @@ const Index = () => {
                 >
                   <PhoneCard
                     name={phone.name}
-                    brand={phone.brand}
                     slug={phone.slug}
-                    price={Number(phone.price)}
+                    currentPrice={Number(phone.current_price)}
+                    originalPrice={phone.original_price ? Number(phone.original_price) : null}
+                    discount={phone.discount}
+                    rating={phone.rating ? Number(phone.rating) : null}
                     imageUrl={phone.image_url}
-                    ram={phone.ram}
-                    storage={phone.storage}
                   />
                 </div>
               ))}

@@ -2,8 +2,6 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
-import SpecsTable from "@/components/SpecsTable";
-import AIVerdict from "@/components/AIVerdict";
 import { ArrowLeft, Smartphone, Loader2 } from "lucide-react";
 
 const PhoneDetail = () => {
@@ -57,15 +55,9 @@ const PhoneDetail = () => {
     );
   }
 
-  const specs = [
-    { label: "Brand", value: phone.brand },
-    { label: "Display", value: phone.display },
-    { label: "Processor", value: phone.processor },
-    { label: "RAM", value: phone.ram },
-    { label: "Storage", value: phone.storage },
-    { label: "Camera", value: phone.camera },
-    { label: "Battery", value: phone.battery },
-  ];
+  const currentPrice = Number(phone.current_price);
+  const originalPrice = phone.original_price ? Number(phone.original_price) : null;
+  const rating = phone.rating ? Number(phone.rating) : null;
 
   return (
     <Layout>
@@ -81,18 +73,28 @@ const PhoneDetail = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* Left: Image */}
-          <div className="bg-card rounded-2xl border border-border p-8 flex items-center justify-center aspect-square">
+          <div className="bg-card rounded-2xl border border-border p-8 flex items-center justify-center aspect-square relative">
             {phone.image_url ? (
               <img
                 src={phone.image_url}
                 alt={phone.name}
                 className="max-w-full max-h-full object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                }}
               />
-            ) : (
-              <div className="flex flex-col items-center justify-center text-muted-foreground">
-                <Smartphone className="w-32 h-32 mb-4 opacity-40" />
-                <span className="text-sm opacity-60">No image available</span>
-              </div>
+            ) : null}
+            <div className={`flex flex-col items-center justify-center text-muted-foreground ${phone.image_url ? 'hidden' : ''}`}>
+              <Smartphone className="w-32 h-32 mb-4 opacity-40" />
+              <span className="text-sm opacity-60">No image available</span>
+            </div>
+            
+            {/* Discount badge */}
+            {phone.discount && (
+              <span className="absolute top-4 left-4 text-sm font-bold text-white bg-primary px-3 py-1.5 rounded-lg">
+                {phone.discount}
+              </span>
             )}
           </div>
 
@@ -100,26 +102,64 @@ const PhoneDetail = () => {
           <div className="space-y-6">
             {/* Header */}
             <div>
-              <p className="text-primary font-medium mb-2">{phone.brand}</p>
+              {rating && (
+                <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+                  <span className="text-yellow-400">⭐</span>
+                  <span className="font-medium text-foreground">{rating.toFixed(1)}</span>
+                  <span>Rating</span>
+                </div>
+              )}
               <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
                 {phone.name}
               </h1>
-              <div className="flex items-baseline gap-2">
+              <div className="flex items-baseline gap-3 flex-wrap">
                 <span className="text-4xl font-bold text-primary">
-                  ${Number(phone.price).toLocaleString()}
+                  Rs {currentPrice.toLocaleString()}
                 </span>
-                <span className="text-muted-foreground text-sm">USD</span>
+                {originalPrice && originalPrice > currentPrice && (
+                  <span className="text-xl text-muted-foreground line-through">
+                    Rs {originalPrice.toLocaleString()}
+                  </span>
+                )}
               </div>
+              {phone.discount && (
+                <p className="text-primary font-medium mt-2">
+                  You save: {phone.discount}
+                </p>
+              )}
             </div>
 
-            {/* Specs Table */}
-            <SpecsTable specs={specs} />
+            {/* Info Card */}
+            <div className="bg-secondary/30 rounded-xl p-6 border border-border">
+              <h2 className="font-display text-lg font-semibold text-foreground mb-4">
+                Product Information
+              </h2>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Current Price</span>
+                  <span className="font-medium text-foreground">Rs {currentPrice.toLocaleString()}</span>
+                </div>
+                {originalPrice && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Original Price</span>
+                    <span className="font-medium text-foreground">Rs {originalPrice.toLocaleString()}</span>
+                  </div>
+                )}
+                {phone.discount && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Discount</span>
+                    <span className="font-medium text-primary">{phone.discount}</span>
+                  </div>
+                )}
+                {rating && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Rating</span>
+                    <span className="font-medium text-foreground">⭐ {rating.toFixed(1)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-
-        {/* AI Verdict - Full width below */}
-        <div className="mt-10">
-          <AIVerdict verdict={phone.ai_verdict} />
         </div>
       </div>
     </Layout>

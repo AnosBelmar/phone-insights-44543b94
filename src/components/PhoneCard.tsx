@@ -36,21 +36,6 @@ const PhoneCard = ({ name, slug, currentPrice, originalPrice, discount, rating, 
             <span className="text-xs opacity-60">No image</span>
           </div>
           <div className="mt-4 border-t border-gray-700 pt-4">
-  <div className="grid grid-cols-2 gap-y-3 gap-x-2 text-xs text-gray-400">
-    <div className="flex items-center gap-2">
-      <span className="text-blue-400">📱</span> {phone.display || 'N/A'}
-    </div>
-    <div className="flex items-center gap-2">
-      <span className="text-green-400">🔋</span> {phone.battery || 'N/A'}
-    </div>
-    <div className="flex items-center gap-2">
-      <span className="text-purple-400">📸</span> {phone.camera || 'N/A'}
-    </div>
-    <div className="flex items-center gap-2">
-      <span className="text-yellow-400">💾</span> {phone.storage} / {phone.ram}
-    </div>
-  </div>
-</div>
           
           {/* Discount badge */}
           {discount && (
@@ -74,15 +59,37 @@ const PhoneCard = ({ name, slug, currentPrice, originalPrice, discount, rating, 
           </h3>
           
           {/* Price */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="price-tag">{formatPrice(currentPrice, symbol, rate)}</span>
-            {originalPrice && originalPrice > currentPrice && (
-              <span className="text-sm text-muted-foreground line-through">
-                {formatPrice(originalPrice, symbol, rate)}
-              </span>
-            )}
-          </div>
-          
+         {/* --- Copy From Here --- */}
+<div className="mt-4 pt-4 border-t border-gray-800">
+  <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+    
+    {/* Display Spec */}
+    <div className="flex items-center gap-2 text-xs text-gray-400">
+      <span className="text-blue-500">📱</span>
+      <span className="truncate">{phone.display || 'Standard Display'}</span>
+    </div>
+
+    {/* Battery Spec */}
+    <div className="flex items-center gap-2 text-xs text-gray-400">
+      <span className="text-green-500">🔋</span>
+      <span className="truncate">{phone.battery || 'Long-lasting'}</span>
+    </div>
+
+    {/* Camera Spec */}
+    <div className="flex items-center gap-2 text-xs text-gray-400">
+      <span className="text-purple-500">📸</span>
+      <span className="truncate">{phone.camera || 'High Def'}</span>
+    </div>
+
+    {/* Storage/RAM Spec */}
+    <div className="flex items-center gap-2 text-xs text-gray-400">
+      <span className="text-yellow-500">💾</span>
+      <span className="truncate">{phone.storage} / {phone.ram}</span>
+    </div>
+
+  </div>
+</div>
+{/* --- End Copy --- */}
           <span className="text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity mt-2 block">
             View Details →
           </span>

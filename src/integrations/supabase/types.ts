@@ -16,54 +16,39 @@ export type Database = {
     Tables: {
       phones: {
         Row: {
-          ai_verdict: string | null
-          battery: string | null
-          brand: string
-          camera: string | null
           created_at: string
-          display: string | null
+          current_price: number
+          discount: string | null
           id: string
           image_url: string | null
           name: string
-          price: number
-          processor: string | null
-          ram: string | null
+          original_price: number | null
+          rating: number | null
           slug: string
-          storage: string | null
           updated_at: string
         }
         Insert: {
-          ai_verdict?: string | null
-          battery?: string | null
-          brand: string
-          camera?: string | null
           created_at?: string
-          display?: string | null
+          current_price?: number
+          discount?: string | null
           id?: string
           image_url?: string | null
           name: string
-          price: number
-          processor?: string | null
-          ram?: string | null
+          original_price?: number | null
+          rating?: number | null
           slug: string
-          storage?: string | null
           updated_at?: string
         }
         Update: {
-          ai_verdict?: string | null
-          battery?: string | null
-          brand?: string
-          camera?: string | null
           created_at?: string
-          display?: string | null
+          current_price?: number
+          discount?: string | null
           id?: string
           image_url?: string | null
           name?: string
-          price?: number
-          processor?: string | null
-          ram?: string | null
+          original_price?: number | null
+          rating?: number | null
           slug?: string
-          storage?: string | null
           updated_at?: string
         }
         Relationships: []

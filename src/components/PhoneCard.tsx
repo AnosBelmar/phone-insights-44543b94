@@ -35,6 +35,22 @@ const PhoneCard = ({ name, slug, currentPrice, originalPrice, discount, rating, 
             <Smartphone className="w-20 h-20 mb-2 opacity-40" />
             <span className="text-xs opacity-60">No image</span>
           </div>
+          <div className="mt-4 border-t border-gray-700 pt-4">
+  <div className="grid grid-cols-2 gap-y-3 gap-x-2 text-xs text-gray-400">
+    <div className="flex items-center gap-2">
+      <span className="text-blue-400">📱</span> {phone.display || 'N/A'}
+    </div>
+    <div className="flex items-center gap-2">
+      <span className="text-green-400">🔋</span> {phone.battery || 'N/A'}
+    </div>
+    <div className="flex items-center gap-2">
+      <span className="text-purple-400">📸</span> {phone.camera || 'N/A'}
+    </div>
+    <div className="flex items-center gap-2">
+      <span className="text-yellow-400">💾</span> {phone.storage} / {phone.ram}
+    </div>
+  </div>
+</div>
           
           {/* Discount badge */}
           {discount && (

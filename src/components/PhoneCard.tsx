@@ -92,36 +92,24 @@ const PhoneCard = ({
             )}
           </div>
 
-          {/* --- Attentive Specs Grid --- */}
-          <div className="mt-auto pt-4 border-t border-border/50">
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-              
-              {/* Display */}
-              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                <Monitor className="w-3 h-3 text-blue-500" />
-                <span className="truncate">{display || 'FHD+ Display'}</span>
-              </div>
-
-              {/* Battery */}
-              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                <Battery className="w-3 h-3 text-green-500" />
-                <span className="truncate">{battery || '5000mAh'}</span>
-              </div>
-
-              {/* Camera */}
-              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                <Camera className="w-3 h-3 text-purple-500" />
-                <span className="truncate">{camera || 'AI Camera'}</span>
-              </div>
-
-              {/* Memory */}
-              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                <Cpu className="w-3 h-3 text-yellow-500" />
-                <span className="truncate">{storage}/{ram}</span>
-              </div>
-
-            </div>
-          </div>
+          {<div className="space-y-2 mt-4 text-[11px] border-t border-border/40 pt-3">
+           <div className="flex justify-between">
+                 <span className="text-muted-foreground">Processor</span>
+                  <span className="font-medium text-foreground">{phone.processor || 'Octa-core'}</span>
+               </div>
+                <div className="flex justify-between">
+                   <span className="text-muted-foreground">Display</span>
+             <span className="font-medium text-foreground">{phone.display_size} {phone.display_type}</span>
+             </div>
+             <div className="flex justify-between">
+            <span className="text-muted-foreground">Main Camera</span>
+                 <span className="font-medium text-foreground">{phone.main_camera}</span>
+         </div>
+               <div className="flex justify-between">
+                <span className="text-muted-foreground">Battery</span>
+                  <span className="font-medium text-foreground">{phone.battery_capacity} ({phone.charging_speed})</span>
+             </div>
+             </div>
 
           <span className="text-[11px] text-primary font-bold uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-all duration-300 mt-4 translate-x-[-10px] group-hover:translate-x-0 block">
             View Specifications →

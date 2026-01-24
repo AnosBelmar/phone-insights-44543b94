@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Smartphone } from "lucide-react";
+import { useCurrency, formatPrice } from "@/hooks/useCurrency";
 
 interface PhoneCardProps {
   name: string;
@@ -12,6 +13,8 @@ interface PhoneCardProps {
 }
 
 const PhoneCard = ({ name, slug, currentPrice, originalPrice, discount, rating, imageUrl }: PhoneCardProps) => {
+  const { symbol, rate } = useCurrency();
+
   return (
     <Link to={`/phone/${slug}`} className="block">
       <article className="card-premium group">
@@ -56,10 +59,10 @@ const PhoneCard = ({ name, slug, currentPrice, originalPrice, discount, rating, 
           
           {/* Price */}
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="price-tag">Rs {currentPrice.toLocaleString()}</span>
+            <span className="price-tag">{formatPrice(currentPrice, symbol, rate)}</span>
             {originalPrice && originalPrice > currentPrice && (
               <span className="text-sm text-muted-foreground line-through">
-                Rs {originalPrice.toLocaleString()}
+                {formatPrice(originalPrice, symbol, rate)}
               </span>
             )}
           </div>

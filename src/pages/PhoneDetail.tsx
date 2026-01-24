@@ -3,9 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
 import { ArrowLeft, Smartphone, Loader2 } from "lucide-react";
+import { useCurrency, formatPrice } from "@/hooks/useCurrency";
 
 const PhoneDetail = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { symbol, rate } = useCurrency();
 
   const { data: phone, isLoading, error } = useQuery({
     queryKey: ["phone", slug],
@@ -114,11 +116,11 @@ const PhoneDetail = () => {
               </h1>
               <div className="flex items-baseline gap-3 flex-wrap">
                 <span className="text-4xl font-bold text-primary">
-                  Rs {currentPrice.toLocaleString()}
+                  {formatPrice(currentPrice, symbol, rate)}
                 </span>
                 {originalPrice && originalPrice > currentPrice && (
                   <span className="text-xl text-muted-foreground line-through">
-                    Rs {originalPrice.toLocaleString()}
+                    {formatPrice(originalPrice, symbol, rate)}
                   </span>
                 )}
               </div>
@@ -137,12 +139,12 @@ const PhoneDetail = () => {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Current Price</span>
-                  <span className="font-medium text-foreground">Rs {currentPrice.toLocaleString()}</span>
+                  <span className="font-medium text-foreground">{formatPrice(currentPrice, symbol, rate)}</span>
                 </div>
                 {originalPrice && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Original Price</span>
-                    <span className="font-medium text-foreground">Rs {originalPrice.toLocaleString()}</span>
+                    <span className="font-medium text-foreground">{formatPrice(originalPrice, symbol, rate)}</span>
                   </div>
                 )}
                 {phone.discount && (

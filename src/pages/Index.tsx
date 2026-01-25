@@ -91,10 +91,10 @@ const Index = () => {
                     name={phone.name}
                     slug={phone.slug}
                     currentPrice={Number(phone.current_price)}
-                    originalPrice={phone.original_price ? Number(phone.original_price) : null}
-                    discount={phone.discount}
-                    rating={phone.rating ? Number(phone.rating) : null}
-                    imageUrl={phone.image_url}
+                    originalPrice={phone.original_price ? Number(phone.original_price) : undefined}
+                    discount={phone.discount ?? undefined}
+                    imageUrl={phone.image_url ?? undefined}
+                    rating={phone.rating ? Number(phone.rating) : undefined}
                   />
                 </div>
               ))}

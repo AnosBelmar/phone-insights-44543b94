@@ -16,40 +16,76 @@ export type Database = {
     Tables: {
       phones: {
         Row: {
+          battery: string | null
           created_at: string
           current_price: number
+          dimensions: string | null
           discount: string | null
+          display_size: string | null
+          display_type: string | null
           id: string
           image_url: string | null
+          main_camera: string | null
           name: string
+          network: string | null
           original_price: number | null
+          os: string | null
+          processor: string | null
+          ram: string | null
           rating: number | null
+          selfie_camera: string | null
           slug: string
+          storage: string | null
           updated_at: string
+          weight: string | null
         }
         Insert: {
+          battery?: string | null
           created_at?: string
           current_price?: number
+          dimensions?: string | null
           discount?: string | null
+          display_size?: string | null
+          display_type?: string | null
           id?: string
           image_url?: string | null
+          main_camera?: string | null
           name: string
+          network?: string | null
           original_price?: number | null
+          os?: string | null
+          processor?: string | null
+          ram?: string | null
           rating?: number | null
+          selfie_camera?: string | null
           slug: string
+          storage?: string | null
           updated_at?: string
+          weight?: string | null
         }
         Update: {
+          battery?: string | null
           created_at?: string
           current_price?: number
+          dimensions?: string | null
           discount?: string | null
+          display_size?: string | null
+          display_type?: string | null
           id?: string
           image_url?: string | null
+          main_camera?: string | null
           name?: string
+          network?: string | null
           original_price?: number | null
+          os?: string | null
+          processor?: string | null
+          ram?: string | null
           rating?: number | null
+          selfie_camera?: string | null
           slug?: string
+          storage?: string | null
           updated_at?: string
+          weight?: string | null
         }
         Relationships: []
       }

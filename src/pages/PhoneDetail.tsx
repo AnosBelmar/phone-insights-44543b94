@@ -7,7 +7,8 @@ import {
   Battery, Camera, Monitor, Layers, Wifi, Scale, Ruler 
 } from "lucide-react";
 import { useCurrency, formatPrice } from "@/hooks/useCurrency";
-
+import { usePhoneReview } from "@/hooks/usePhoneReview";
+import { AIReviewSection } from "@/components/phone/AIReviewSection";
 const PhoneDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const { symbol, rate } = useCurrency();
@@ -26,6 +27,8 @@ const PhoneDetail = () => {
     },
     enabled: !!slug,
   });
+
+  const { data: review, isLoading: isReviewLoading } = usePhoneReview(phone);
 
   if (isLoading) {
     return (
@@ -230,6 +233,11 @@ const PhoneDetail = () => {
               </p>
             </div>
           )}
+        </div>
+
+        {/* AI Review Section */}
+        <div className="mt-12">
+          <AIReviewSection review={review!} isLoading={isReviewLoading} />
         </div>
       </div>
     </Layout>

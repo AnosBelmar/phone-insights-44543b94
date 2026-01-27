@@ -1,9 +1,8 @@
 import { PhoneReview } from "@/hooks/usePhoneReview";
 import { 
   Sparkles, ThumbsUp, ThumbsDown, Target, Zap, 
-  Camera, Battery, MonitorSmartphone, Star
+  Camera, Battery, MonitorSmartphone, Star, DollarSign
 } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 
 interface AIReviewSectionProps {
@@ -94,46 +93,58 @@ export const AIReviewSection = ({ review, isLoading }: AIReviewSectionProps) => 
           <ScoreBar label="Camera" score={review.cameraScore} icon={Camera} />
           <ScoreBar label="Battery" score={review.batteryScore} icon={Battery} />
           <ScoreBar label="Display" score={review.displayScore} icon={MonitorSmartphone} />
-          <ScoreBar label="Value for Money" score={review.valueScore} icon={Target} />
+          <ScoreBar label="Value for Money" score={review.valueScore} icon={DollarSign} />
         </div>
       </div>
 
-      {/* Pros and Cons */}
+      {/* Pros and Cons - Redesigned */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Pros */}
-        <div className="bg-green-500/5 rounded-2xl border border-green-500/20 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
-              <ThumbsUp className="w-4 h-4 text-green-500" />
+        <div className="bg-card rounded-2xl border border-green-500/30 overflow-hidden">
+          <div className="bg-green-500/10 px-6 py-4 border-b border-green-500/20">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                <ThumbsUp className="w-5 h-5 text-green-500" />
+              </div>
+              <h3 className="font-display text-lg font-bold text-foreground">Pros</h3>
             </div>
-            <h3 className="font-display text-lg font-bold text-foreground">Pros</h3>
           </div>
-          <ul className="space-y-3">
-            {review.pros.map((pro, index) => (
-              <li key={index} className="flex items-start gap-3">
-                <span className="text-green-500 mt-1">✓</span>
-                <span className="text-foreground">{pro}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="p-6">
+            <ul className="space-y-4">
+              {review.pros.map((pro, index) => (
+                <li key={index} className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center mt-0.5">
+                    <span className="text-green-500 text-sm font-bold">✓</span>
+                  </div>
+                  <span className="text-foreground leading-relaxed">{pro}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* Cons */}
-        <div className="bg-red-500/5 rounded-2xl border border-red-500/20 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center">
-              <ThumbsDown className="w-4 h-4 text-red-500" />
+        <div className="bg-card rounded-2xl border border-red-500/30 overflow-hidden">
+          <div className="bg-red-500/10 px-6 py-4 border-b border-red-500/20">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+                <ThumbsDown className="w-5 h-5 text-red-500" />
+              </div>
+              <h3 className="font-display text-lg font-bold text-foreground">Cons</h3>
             </div>
-            <h3 className="font-display text-lg font-bold text-foreground">Cons</h3>
           </div>
-          <ul className="space-y-3">
-            {review.cons.map((con, index) => (
-              <li key={index} className="flex items-start gap-3">
-                <span className="text-red-500 mt-1">✗</span>
-                <span className="text-foreground">{con}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="p-6">
+            <ul className="space-y-4">
+              {review.cons.map((con, index) => (
+                <li key={index} className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center mt-0.5">
+                    <span className="text-red-500 text-sm font-bold">✗</span>
+                  </div>
+                  <span className="text-foreground leading-relaxed">{con}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -142,7 +153,7 @@ export const AIReviewSection = ({ review, isLoading }: AIReviewSectionProps) => 
         <h3 className="font-display text-lg font-bold text-foreground mb-6">Key Highlights</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {review.highlights.map((highlight, index) => (
-            <div key={index} className="bg-secondary/30 rounded-xl p-4">
+            <div key={index} className="bg-secondary/30 rounded-xl p-4 border border-border/50">
               <h4 className="font-semibold text-foreground mb-1">{highlight.title}</h4>
               <p className="text-sm text-muted-foreground">{highlight.description}</p>
             </div>
@@ -157,9 +168,12 @@ export const AIReviewSection = ({ review, isLoading }: AIReviewSectionProps) => 
           <h3 className="font-display text-lg font-bold text-foreground mb-4">Best For</h3>
           <div className="flex flex-wrap gap-2">
             {review.bestFor.map((use, index) => (
-              <Badge key={index} variant="secondary" className="capitalize">
+              <span 
+                key={index} 
+                className="inline-flex items-center px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium capitalize"
+              >
                 {use}
-              </Badge>
+              </span>
             ))}
           </div>
         </div>

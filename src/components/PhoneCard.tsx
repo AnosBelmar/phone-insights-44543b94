@@ -6,10 +6,11 @@ interface PhoneCardProps {
   name: string;
   slug: string;
   currentPrice: number;
-  originalPrice?: number;
-  discount?: string;
   imageUrl?: string;
   rating?: number;
+  ram?: string;
+  storage?: string;
+  battery?: string;
 }
 
 const PhoneCard = (phone: PhoneCardProps) => {
@@ -36,13 +37,6 @@ const PhoneCard = (phone: PhoneCardProps) => {
           <div className={`flex flex-col items-center justify-center text-muted-foreground ${phone.imageUrl ? 'hidden' : ''}`}>
             <Smartphone className="w-16 h-16 opacity-30" />
           </div>
-
-          {/* Discount Badge */}
-          {phone.discount && (
-            <span className="absolute top-3 left-3 text-xs font-bold text-white bg-primary px-2 py-1 rounded">
-              {phone.discount}
-            </span>
-          )}
         </div>
 
         {/* Content Section */}
@@ -50,6 +44,25 @@ const PhoneCard = (phone: PhoneCardProps) => {
           <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-2">
             {phone.name}
           </h3>
+          
+          {/* Quick Specs */}
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {phone.ram && (
+              <span className="text-xs bg-secondary/50 text-muted-foreground px-2 py-0.5 rounded">
+                {phone.ram}
+              </span>
+            )}
+            {phone.storage && (
+              <span className="text-xs bg-secondary/50 text-muted-foreground px-2 py-0.5 rounded">
+                {phone.storage}
+              </span>
+            )}
+            {phone.battery && (
+              <span className="text-xs bg-secondary/50 text-muted-foreground px-2 py-0.5 rounded">
+                {phone.battery}
+              </span>
+            )}
+          </div>
           
           {/* Rating */}
           {phone.rating && (
@@ -61,16 +74,9 @@ const PhoneCard = (phone: PhoneCardProps) => {
           
           {/* Price */}
           <div className="mt-auto">
-            <div className="flex items-baseline gap-2 flex-wrap">
-              <span className="text-lg font-bold text-primary">
-                {formatPrice(phone.currentPrice, symbol, rate)}
-              </span>
-              {phone.originalPrice && phone.originalPrice > phone.currentPrice && (
-                <span className="text-sm text-muted-foreground line-through">
-                  {formatPrice(phone.originalPrice, symbol, rate)}
-                </span>
-              )}
-            </div>
+            <span className="text-lg font-bold text-primary">
+              {formatPrice(phone.currentPrice, symbol, rate)}
+            </span>
           </div>
         </div>
       </article>

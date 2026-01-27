@@ -2,13 +2,12 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
-import { 
-  ArrowLeft, Smartphone, Loader2, Cpu, HardDrive, 
-  Battery, Camera, Monitor, Layers, Wifi, Scale, Ruler 
-} from "lucide-react";
+import { ArrowLeft, Smartphone, Loader2 } from "lucide-react";
 import { useCurrency, formatPrice } from "@/hooks/useCurrency";
 import { usePhoneReview } from "@/hooks/usePhoneReview";
 import { AIReviewSection } from "@/components/phone/AIReviewSection";
+import { SpecificationsSection } from "@/components/phone/SpecificationsSection";
+
 const PhoneDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const { symbol, rate } = useCurrency();
@@ -64,26 +63,7 @@ const PhoneDetail = () => {
   }
 
   const currentPrice = Number(phone.current_price);
-  const originalPrice = phone.original_price ? Number(phone.original_price) : null;
   const rating = phone.rating ? Number(phone.rating) : null;
-
-  // Spec items for the table
-  const specs = [
-    { icon: Cpu, label: "Processor", value: phone.processor },
-    { icon: HardDrive, label: "RAM", value: phone.ram },
-    { icon: Layers, label: "Storage", value: phone.storage },
-    { icon: Battery, label: "Battery", value: phone.battery },
-    { icon: Camera, label: "Main Camera", value: phone.main_camera },
-    { icon: Camera, label: "Selfie Camera", value: phone.selfie_camera },
-    { icon: Monitor, label: "Display Size", value: phone.display_size },
-    { icon: Monitor, label: "Display Type", value: phone.display_type },
-    { icon: Layers, label: "Operating System", value: phone.os },
-    { icon: Wifi, label: "Network", value: phone.network },
-    { icon: Scale, label: "Weight", value: phone.weight },
-    { icon: Ruler, label: "Dimensions", value: phone.dimensions },
-  ];
-
-  const hasSpecs = specs.some(spec => spec.value);
 
   return (
     <Layout>
@@ -115,13 +95,6 @@ const PhoneDetail = () => {
               <Smartphone className="w-32 h-32 mb-4 opacity-40" />
               <span className="text-sm opacity-60">No image available</span>
             </div>
-            
-            {/* Discount badge */}
-            {phone.discount && (
-              <span className="absolute top-4 left-4 text-sm font-bold text-white bg-primary px-3 py-1.5 rounded-lg">
-                {phone.discount}
-              </span>
-            )}
           </div>
 
           {/* Right: Details */}
@@ -138,49 +111,51 @@ const PhoneDetail = () => {
               <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
                 {phone.name}
               </h1>
-              <div className="flex items-baseline gap-3 flex-wrap">
-                <span className="text-4xl font-bold text-primary">
-                  {formatPrice(currentPrice, symbol, rate)}
-                </span>
-                {originalPrice && originalPrice > currentPrice && (
-                  <span className="text-xl text-muted-foreground line-through">
-                    {formatPrice(originalPrice, symbol, rate)}
-                  </span>
-                )}
-              </div>
-              {phone.discount && (
-                <p className="text-primary font-medium mt-2">
-                  You save: {phone.discount}
-                </p>
-              )}
+              <span className="text-4xl font-bold text-primary">
+                {formatPrice(currentPrice, symbol, rate)}
+              </span>
             </div>
 
-            {/* Price Info Card */}
+            {/* Quick Specs Card */}
             <div className="bg-secondary/30 rounded-xl p-6 border border-border">
               <h2 className="font-display text-lg font-semibold text-foreground mb-4">
-                Price Information
+                Quick Specs
               </h2>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Current Price</span>
-                  <span className="font-medium text-foreground">{formatPrice(currentPrice, symbol, rate)}</span>
-                </div>
-                {originalPrice && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Original Price</span>
-                    <span className="font-medium text-foreground">{formatPrice(originalPrice, symbol, rate)}</span>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                {phone.processor && (
+                  <div>
+                    <span className="text-muted-foreground block">Processor</span>
+                    <span className="font-medium text-foreground">{phone.processor}</span>
                   </div>
                 )}
-                {phone.discount && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Discount</span>
-                    <span className="font-medium text-primary">{phone.discount}</span>
+                {phone.ram && (
+                  <div>
+                    <span className="text-muted-foreground block">RAM</span>
+                    <span className="font-medium text-foreground">{phone.ram}</span>
                   </div>
                 )}
-                {rating && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Rating</span>
-                    <span className="font-medium text-foreground">⭐ {rating.toFixed(1)}</span>
+                {phone.storage && (
+                  <div>
+                    <span className="text-muted-foreground block">Storage</span>
+                    <span className="font-medium text-foreground">{phone.storage}</span>
+                  </div>
+                )}
+                {phone.battery && (
+                  <div>
+                    <span className="text-muted-foreground block">Battery</span>
+                    <span className="font-medium text-foreground">{phone.battery}</span>
+                  </div>
+                )}
+                {phone.display_size && (
+                  <div>
+                    <span className="text-muted-foreground block">Display</span>
+                    <span className="font-medium text-foreground">{phone.display_size}</span>
+                  </div>
+                )}
+                {phone.main_camera && (
+                  <div>
+                    <span className="text-muted-foreground block">Camera</span>
+                    <span className="font-medium text-foreground">{phone.main_camera.split('+')[0]}</span>
                   </div>
                 )}
               </div>
@@ -193,46 +168,7 @@ const PhoneDetail = () => {
           <h2 className="font-display text-2xl font-bold text-foreground mb-6">
             Full Specifications
           </h2>
-          
-          {hasSpecs ? (
-            <div className="bg-card rounded-2xl border border-border overflow-hidden">
-              <div className="grid grid-cols-1 md:grid-cols-2">
-                {specs.map((spec, index) => {
-                  const IconComponent = spec.icon;
-                  return (
-                    <div
-                      key={spec.label}
-                      className={`flex items-center gap-4 p-5 border-b border-border/50 last:border-b-0 md:odd:border-r ${
-                        index >= specs.length - 2 ? 'md:border-b-0' : ''
-                      }`}
-                    >
-                      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <IconComponent className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="flex-grow min-w-0">
-                        <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-                          {spec.label}
-                        </p>
-                        <p className="text-foreground font-medium truncate">
-                          {spec.value || "—"}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-            <div className="bg-card rounded-2xl border border-border p-12 text-center">
-              <Smartphone className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-30" />
-              <p className="text-muted-foreground">
-                Detailed specifications are not available for this phone yet.
-              </p>
-              <p className="text-sm text-muted-foreground/70 mt-2">
-                Check back later for updates.
-              </p>
-            </div>
-          )}
+          <SpecificationsSection phone={phone} />
         </div>
 
         {/* AI Review Section */}

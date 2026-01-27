@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
 import SearchBar from "@/components/SearchBar";
 import PhoneCard from "@/components/PhoneCard";
+import { PhoneRecommendations } from "@/components/phone/PhoneRecommendations";
 import { Loader2, Smartphone } from "lucide-react";
 
 const Index = () => {
@@ -41,7 +42,7 @@ const Index = () => {
               Find Your Perfect <span className="text-primary text-glow">Phone</span>
             </h1>
             <p className="text-lg text-muted-foreground">
-              Compare prices and find the best deals on the latest smartphones
+              Compare specs and find the best smartphones with AI-powered insights
             </p>
           </div>
           
@@ -51,6 +52,13 @@ const Index = () => {
             onChange={setSearchQuery}
             placeholder="Search phones by name..."
           />
+        </div>
+      </section>
+
+      {/* AI Recommendations Section */}
+      <section className="container mx-auto px-4 py-12">
+        <div className="max-w-2xl mx-auto">
+          <PhoneRecommendations />
         </div>
       </section>
 
@@ -91,10 +99,11 @@ const Index = () => {
                     name={phone.name}
                     slug={phone.slug}
                     currentPrice={Number(phone.current_price)}
-                    originalPrice={phone.original_price ? Number(phone.original_price) : undefined}
-                    discount={phone.discount ?? undefined}
                     imageUrl={phone.image_url ?? undefined}
                     rating={phone.rating ? Number(phone.rating) : undefined}
+                    ram={phone.ram ?? undefined}
+                    storage={phone.storage ?? undefined}
+                    battery={phone.battery ?? undefined}
                   />
                 </div>
               ))}

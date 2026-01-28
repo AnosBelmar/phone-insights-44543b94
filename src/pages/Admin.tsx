@@ -1,14 +1,20 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
-import { Loader2, Smartphone, Wand2, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { Loader2, Smartphone, Wand2, CheckCircle, XCircle, AlertCircle, Lock, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 
+const ADMIN_PASSWORD = "181512";
+
 const Admin = () => {
   const queryClient = useQueryClient();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [generatingSpecs, setGeneratingSpecs] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   
@@ -23,10 +29,22 @@ const Admin = () => {
       if (error) throw error;
       return data;
     },
+    enabled: isAuthenticated,
   });
 
   const phonesWithSpecs = phones?.filter(p => p.processor && p.ram && p.battery) || [];
   const phonesMissingSpecs = phones?.filter(p => !p.processor || !p.ram || !p.battery) || [];
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      toast.success("Access granted!");
+    } else {
+      toast.error("Invalid password");
+      setPassword("");
+    }
+  };
 
   const generateSpecsForPhone = async (phone: { id: string; name: string }) => {
     const { error } = await supabase.functions.invoke("generate-specs", {
@@ -81,6 +99,57 @@ const Admin = () => {
       toast.error(`Failed to generate specs for ${failCount} phones`);
     }
   };
+
+  // Password Gate
+  if (!isAuthenticated) {
+    return (
+      <Layout>
+        <div className="min-h-[70vh] flex items-center justify-center px-4">
+          <div className="w-full max-w-md">
+            <div className="bg-card rounded-2xl border border-border p-8 shadow-2xl">
+              {/* Lock Icon */}
+              <div className="flex justify-center mb-6">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
+                  <Lock className="w-8 h-8 text-primary" />
+                </div>
+              </div>
+              
+              <h1 className="font-display text-2xl font-bold text-foreground text-center mb-2">
+                Admin Access
+              </h1>
+              <p className="text-muted-foreground text-sm text-center mb-8">
+                Enter the admin password to continue
+              </p>
+
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pr-10 bg-secondary/50 border-border focus:border-primary"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                <Button type="submit" className="w-full">
+                  <Lock className="w-4 h-4 mr-2" />
+                  Unlock Dashboard
+                </Button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -137,7 +206,7 @@ const Admin = () => {
               </div>
               <div>
                 <h2 className="font-display text-lg font-bold text-foreground">AI Specs Generator</h2>
-                <p className="text-xs text-muted-foreground">Powered by GROQ AI</p>
+                <p className="text-xs text-muted-foreground">Powered by Lovable AI</p>
               </div>
             </div>
             

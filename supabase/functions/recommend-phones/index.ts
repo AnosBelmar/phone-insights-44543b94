@@ -21,9 +21,9 @@ serve(async (req) => {
       );
     }
 
-    const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY');
-    if (!GROQ_API_KEY) {
-      throw new Error('GROQ_API_KEY is not configured');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY is not configured');
     }
 
     // Fetch phones from database
@@ -98,14 +98,14 @@ Analyze each phone and return a JSON response with exactly this structure:
 
 Consider factors like value for money, specifications quality, and user preferences. Return ONLY valid JSON.`;
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'google/gemini-2.5-flash',
         messages: [
           {
             role: 'system',
@@ -123,15 +123,29 @@ Consider factors like value for money, specifications quality, and user preferen
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('GROQ API error:', response.status, errorText);
-      throw new Error(`GROQ API error: ${response.status}`);
+      console.error('Lovable AI error:', response.status, errorText);
+      
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      if (response.status === 402) {
+        return new Response(
+          JSON.stringify({ error: 'API credits exhausted. Please add credits.' }),
+          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      throw new Error(`AI API error: ${response.status}`);
     }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
-      throw new Error('No content in GROQ response');
+      throw new Error('No content in AI response');
     }
 
     let result;
@@ -139,8 +153,8 @@ Consider factors like value for money, specifications quality, and user preferen
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       result = JSON.parse(cleanContent);
     } catch (parseError) {
-      console.error('Failed to parse GROQ response:', content);
-      throw new Error('Invalid JSON response from GROQ');
+      console.error('Failed to parse AI response:', content);
+      throw new Error('Invalid JSON response from AI');
     }
 
     // Enrich recommendations with full phone data

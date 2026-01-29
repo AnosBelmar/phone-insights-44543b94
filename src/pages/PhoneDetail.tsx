@@ -7,6 +7,7 @@ import { useCurrency, formatPrice } from "@/hooks/useCurrency";
 import { usePhoneReview } from "@/hooks/usePhoneReview";
 import { AIReviewSection } from "@/components/phone/AIReviewSection";
 import { SpecificationsSection } from "@/components/phone/SpecificationsSection";
+import { SEOHead } from "@/components/SEOHead";
 
 const PhoneDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -65,8 +66,27 @@ const PhoneDetail = () => {
   const currentPrice = Number(phone.current_price);
   const rating = phone.rating ? Number(phone.rating) : null;
 
+  // Generate a fallback image URL
+  const phoneBrand = phone.name.split(' ')[0];
+  const fallbackImage = `https://placehold.co/500x500/1a1f2e/3ecf8e?text=${encodeURIComponent(phone.name.split(' ').slice(0, 2).join(' '))}`;
+  const displayImage = phone.image_url || fallbackImage;
+
   return (
     <Layout>
+      <SEOHead
+        title={`${phone.name} - Price, Specs & Review | Phone Insights`}
+        description={`${phone.name} specs: ${phone.processor || 'Powerful processor'}, ${phone.ram || 'Ample RAM'}, ${phone.battery || 'Long-lasting battery'}. Price in Pakistan: Rs. ${currentPrice.toLocaleString()}. Read full review and compare with other phones.`}
+        canonical={`https://phoneinsights.pk/phone/${phone.slug}`}
+        image={displayImage}
+        type="product"
+        phone={{
+          name: phone.name,
+          price: currentPrice,
+          image: displayImage,
+          rating: rating || undefined,
+          brand: phoneBrand,
+        }}
+      />
       <div className="container mx-auto px-4 py-8">
         {/* Back button */}
         <Link
@@ -79,22 +99,15 @@ const PhoneDetail = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* Left: Image */}
-          <div className="bg-card rounded-2xl border border-border p-8 flex items-center justify-center aspect-square relative">
-            {phone.image_url ? (
-              <img
-                src={phone.image_url}
-                alt={phone.name}
-                className="max-w-full max-h-full object-contain"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                }}
-              />
-            ) : null}
-            <div className={`flex flex-col items-center justify-center text-muted-foreground ${phone.image_url ? 'hidden' : ''}`}>
-              <Smartphone className="w-32 h-32 mb-4 opacity-40" />
-              <span className="text-sm opacity-60">No image available</span>
-            </div>
+          <div className="bg-card rounded-2xl border border-border p-8 flex items-center justify-center aspect-square relative overflow-hidden">
+            <img
+              src={displayImage}
+              alt={phone.name}
+              className="max-w-full max-h-full object-contain"
+              onError={(e) => {
+                e.currentTarget.src = fallbackImage;
+              }}
+            />
           </div>
 
           {/* Right: Details */}

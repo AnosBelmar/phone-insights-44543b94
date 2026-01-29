@@ -70,22 +70,28 @@ const Admin = () => {
     for (let i = 0; i < phonesMissingSpecs.length; i += batchSize) {
       const batch = phonesMissingSpecs.slice(i, i + batchSize);
       
-      await Promise.all(
-        batch.map(async (phone) => {
-          try {
-            await generateSpecsForPhone({ id: phone.id, name: phone.name });
-            successCount++;
-          } catch (error) {
-            console.error(`Failed to generate specs for ${phone.name}:`, error);
-            failCount++;
+      // Process one at a time with delay to avoid rate limits
+      for (const phone of batch) {
+        try {
+          await generateSpecsForPhone({ id: phone.id, name: phone.name });
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to generate specs for ${phone.name}:`, error);
+          failCount++;
+          // If rate limited, wait longer
+          if (error instanceof Error && error.message.includes('Rate limit')) {
+            toast.warning("Rate limit hit - waiting 30 seconds before retrying...");
+            await new Promise(resolve => setTimeout(resolve, 30000));
           }
-          setProgress(prev => ({ ...prev, current: prev.current + 1 }));
-        })
-      );
+        }
+        setProgress(prev => ({ ...prev, current: prev.current + 1 }));
+        // Add 2 second delay between each phone to avoid rate limits
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
 
-      // Small delay between batches
+      // Larger delay between batches to avoid rate limits
       if (i + batchSize < phonesMissingSpecs.length) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 5000));
       }
     }
 

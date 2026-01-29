@@ -7,6 +7,7 @@ import PhoneCard from "@/components/PhoneCard";
 import BrandFilter from "@/components/BrandFilter";
 import PriceSort, { SortOption } from "@/components/PriceSort";
 import { PhoneRecommendations } from "@/components/phone/PhoneRecommendations";
+import { SEOHead } from "@/components/SEOHead";
 import { Loader2, Smartphone, TrendingUp, Shield, Zap } from "lucide-react";
 
 const BRANDS = ["Samsung", "iPhone", "Xiaomi", "Realme", "Infinix", "Vivo", "OPPO", "Tecno"];
@@ -71,6 +72,11 @@ const Index = () => {
 
   return (
     <Layout>
+      <SEOHead
+        title="Phone Insights | Compare 400+ Mobile Specs, Prices & Reviews in Pakistan"
+        description="Find and compare the best smartphones in Pakistan. Browse 400+ phones with detailed specifications, AI-powered reviews, and current prices. Samsung, iPhone, Xiaomi, Realme & more."
+        canonical="https://phoneinsights.pk/"
+      />
       {/* Hero Section - Extraordinary Design */}
       <section className="hero-gradient py-20 md:py-28 relative overflow-hidden">
         {/* Animated background elements */}

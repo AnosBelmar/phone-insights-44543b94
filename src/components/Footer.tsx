@@ -34,10 +34,7 @@ const Footer = () => {
               <li>
                 <Link to="/contact" className="footer-link text-sm">Contact</Link>
               </li>
-              <li>
-                <Link to="/admin" className="footer-link text-sm">Admin Dashboard</Link>
-              </li>
-            </ul>
+               </ul>
           </div>
 
           {/* Legal */}

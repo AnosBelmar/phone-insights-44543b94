@@ -8,7 +8,7 @@ import BrandFilter from "@/components/BrandFilter";
 import PriceSort, { SortOption } from "@/components/PriceSort";
 import { PhoneRecommendations } from "@/components/phone/PhoneRecommendations";
 import { SEOHead } from "@/components/SEOHead";
-import { Smartphone, TrendingUp, Shield, Zap, ChevronDown } from "lucide-react";
+import { Smartphone, TrendingUp, Zap, ChevronDown } from "lucide-react";
 
 const BRANDS = ["Samsung", "iPhone", "Xiaomi", "Realme", "Infinix", "Vivo", "OPPO", "Tecno"];
 const PAGE_SIZE = 12;
@@ -19,15 +19,13 @@ const Index = () => {
   const [sortOption, setSortOption] = useState<SortOption>("newest");
   const [displayCount, setDisplayCount] = useState(PAGE_SIZE);
 
-  // Optimized Query: Filter & Sort at the Database level for speed
   const { data: phones, isLoading } = useQuery({
     queryKey: ["phones", selectedBrand, sortOption, searchQuery],
     queryFn: async () => {
       let query = supabase.from("phones").select("*");
-      
       if (selectedBrand) query = query.ilike("brand", `%${selectedBrand}%`);
       if (searchQuery) query = query.ilike("name", `%${searchQuery}%`);
-
+      
       if (sortOption === "price-low") query = query.order("current_price", { ascending: true });
       else if (sortOption === "price-high") query = query.order("current_price", { ascending: false });
       else if (sortOption === "rating") query = query.order("rating", { ascending: false });
@@ -49,11 +47,8 @@ const Index = () => {
         canonical="https://phone-insights-x.vercel.app/"
       />
 
-      <section className="hero-gradient py-16 relative overflow-hidden">
-        {/* Low-power background: No blurs to save performance */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none" />
-        
-        <div className="container mx-auto px-4 relative z-10 text-center">
+      <section className="py-16 bg-gradient-to-b from-primary/5 to-transparent relative overflow-hidden">
+        <div className="container mx-auto px-4 text-center relative z-10">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-6">
             <Zap className="w-3.5 h-3.5 text-primary" />
             <span className="text-xs font-medium text-primary">Compare 416+ Smartphones</span>
@@ -67,14 +62,18 @@ const Index = () => {
             <SearchBar value={searchQuery} onChange={setSearchQuery} />
           </div>
 
-          <div className="flex justify-center gap-4 text-xs font-medium opacity-80">
-            <span className="flex items-center gap-1"><Smartphone className="w-3 h-3" /> {phones?.length || 416}+ Phones</span>
+          <div className="flex justify-center gap-4 text-xs font-medium opacity-70">
+            <span className="flex items-center gap-1"><Smartphone className="w-3 h-3" /> {phones?.length || 0} Phones</span>
             <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" /> Live Prices</span>
           </div>
         </div>
       </section>
 
       <section className="container mx-auto px-4 py-8">
+        <div className="mb-12">
+          <PhoneRecommendations />
+        </div>
+
         <BrandFilter 
           brands={BRANDS} 
           selectedBrand={selectedBrand} 
@@ -88,29 +87,25 @@ const Index = () => {
 
         {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 animate-pulse">
-            {[...Array(8)].map((_, i) => <div key={i} className="h-64 bg-secondary/50 rounded-xl" />)}
+            {[...Array(8)].map((_, i) => <div key={i} className="h-64 bg-muted rounded-xl" />)}
           </div>
         ) : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
               {visiblePhones.map((phone, index) => (
-                <PhoneCard
-                  key={phone.id}
-                  {...phone}
-                  // Speed Hack: Only first 4 images load instantly
-                  priority={index < 4} 
-                />
+                <PhoneCard key={phone.id} {...phone} priority={index < 4} />
               ))}
             </div>
 
             {phones && phones.length > displayCount && (
               <div className="mt-12 text-center">
-                <button 
+                <Button 
                   onClick={() => setDisplayCount(prev => prev + PAGE_SIZE)}
-                  className="bg-secondary hover:bg-secondary/80 px-8 py-3 rounded-full text-sm font-bold flex items-center gap-2 mx-auto"
+                  variant="secondary"
+                  className="rounded-full px-8"
                 >
-                  <ChevronDown className="w-4 h-4" /> Load More
-                </button>
+                  <ChevronDown className="w-4 h-4 mr-2" /> Load More
+                </Button>
               </div>
             )}
           </>

@@ -1,18 +1,45 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { NavLinks } from "./NavLinks";
-import { Smartphone, Menu } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { Smartphone, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
+// Clean links array - Admin is removed
+const navigationLinks = [
+  { name: "Home", href: "/" },
+  { name: "About", href: "/about" },
+  { name: "Contact", href: "/contact" },
+  { name: "Privacy", href: "/privacy" },
+];
+
 const Layout = ({ children }: LayoutProps) => {
+  const location = useLocation();
+
+  const NavItems = ({ className, onClick }: { className?: string; onClick?: () => void }) => (
+    <div className={cn("flex items-center gap-6", className)}>
+      {navigationLinks.map((link) => (
+        <Link
+          key={link.href}
+          to={link.href}
+          onClick={onClick}
+          className={cn(
+            "text-sm font-medium transition-colors hover:text-primary",
+            location.pathname === link.href ? "text-primary" : "text-muted-foreground"
+          )}
+        >
+          {link.name}
+        </Link>
+      ))}
+    </div>
+  );
+
   return (
     <div className="min-h-screen flex flex-col bg-background font-sans antialiased">
-      {/* Header / Navigation */}
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
@@ -24,23 +51,22 @@ const Layout = ({ children }: LayoutProps) => {
             </span>
           </Link>
 
-          {/* Desktop Navigation - Uses NavLinks, no Admin here */}
-          <nav className="hidden md:flex items-center gap-8">
-            <NavLinks />
+          {/* Desktop Navigation */}
+          <nav className="hidden md:block">
+            <NavItems />
           </nav>
 
           {/* Mobile Navigation */}
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="md:hidden">
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <Menu className="w-6 h-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[250px] sm:w-[300px]">
+              <SheetContent side="right">
                 <nav className="flex flex-col gap-4 mt-8">
-                  {/* NavLinks handles mobile clicks via the list we cleaned earlier */}
-                  <NavLinks className="flex-col items-start gap-4" />
+                  <NavItems className="flex-col items-start gap-4" />
                 </nav>
               </SheetContent>
             </Sheet>
@@ -48,39 +74,26 @@ const Layout = ({ children }: LayoutProps) => {
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="flex-grow">
-        {children}
-      </main>
+      <main className="flex-grow">{children}</main>
 
-      {/* Footer - No Admin button here either */}
-      <footer className="border-t border-border bg-muted/30 py-12">
+      <footer className="border-t border-border bg-muted/30 py-12 mt-20">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <h3 className="font-bold mb-4">Phone Insights</h3>
-              <p className="text-sm text-muted-foreground">
-                The ultimate guide for mobile prices and specs in Pakistan. 
-                AI-powered recommendations for your next upgrade.
-              </p>
+              <p className="text-sm text-muted-foreground">Expert mobile specs and AI reviews for Pakistan.</p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Explore</h4>
-              <nav className="flex flex-col gap-2">
-                <NavLinks className="flex-col items-start gap-2" />
-              </nav>
+              <h4 className="font-semibold mb-4">Links</h4>
+              <NavItems className="flex-col items-start gap-2" />
             </div>
             <div>
               <h4 className="font-semibold mb-4">Contact</h4>
-              <p className="text-sm text-muted-foreground">
-                Contact us for collaborations or queries regarding mobile data.
-              </p>
+              <p className="text-sm text-muted-foreground">info@phone-insights-x.app</p>
             </div>
           </div>
-          <div className="text-center pt-8 border-t border-border">
-            <p className="text-xs text-muted-foreground">
-              © {new Date().getFullYear()} Phone Insights Pakistan. All rights reserved.
-            </p>
+          <div className="text-center pt-8 mt-8 border-t border-border">
+            <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Phone Insights. All rights reserved.</p>
           </div>
         </div>
       </footer>

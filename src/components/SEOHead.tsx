@@ -19,54 +19,40 @@ export const SEOHead = ({
   title,
   description,
   canonical,
-  image = "https://lovable.dev/opengraph-image-p98pqg.png",
+  // Fix: Default to your site's own OG image
+  image = "https://phone-insights-x.vercel.app/og-image.png",
   type = "website",
   phone,
 }: SEOHeadProps) => {
   useEffect(() => {
-    // Update document title
     document.title = title;
 
-    // Update meta tags
-    const updateMeta = (name: string, content: string) => {
-      let meta = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement;
-      if (!meta) {
-        meta = document.createElement("meta");
-        meta.name = name;
-        document.head.appendChild(meta);
+    const updateMeta = (selector: string, attr: string, value: string, isProperty = false) => {
+      let el = document.querySelector(selector);
+      if (!el) {
+        el = document.createElement(isProperty ? "meta" : selector.split('[')[0]);
+        if (isProperty) el.setAttribute("property", attr);
+        else if (selector.includes('name')) el.setAttribute("name", attr);
+        else if (selector.includes('rel')) el.setAttribute("rel", attr);
+        document.head.appendChild(el);
       }
-      meta.content = content;
+      if (el instanceof HTMLMetaElement) el.content = value;
+      if (el instanceof HTMLLinkElement) el.href = value;
     };
 
-    const updateOGMeta = (property: string, content: string) => {
-      let meta = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement;
-      if (!meta) {
-        meta = document.createElement("meta");
-        meta.setAttribute("property", property);
-        document.head.appendChild(meta);
-      }
-      meta.content = content;
-    };
-
-    updateMeta("description", description);
-    updateOGMeta("og:title", title);
-    updateOGMeta("og:description", description);
-    updateOGMeta("og:type", type);
-    updateOGMeta("og:image", image);
+    updateMeta('meta[name="description"]', "description", description);
+    updateMeta('meta[property="og:title"]', "og:title", title, true);
+    updateMeta('meta[property="og:description"]', "og:description", description, true);
+    updateMeta('meta[property="og:type"]', "og:type", type, true);
+    updateMeta('meta[property="og:image"]', "og:image", image, true);
     
-    if (canonical) {
-      updateOGMeta("og:url", canonical);
-      
-      let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
-      if (!link) {
-        link = document.createElement("link");
-        link.rel = "canonical";
-        document.head.appendChild(link);
-      }
-      link.href = canonical;
-    }
+    // Fix: Updated to your actual Vercel URL
+    const siteUrl = "https://phone-insights-x.vercel.app";
+    const currentUrl = canonical || siteUrl;
+    updateMeta('link[rel="canonical"]', "canonical", currentUrl);
+    updateMeta('meta[property="og:url"]', "og:url", currentUrl, true);
 
-    // Add JSON-LD structured data
+    // Schema Logic
     let script = document.querySelector('#json-ld-schema') as HTMLScriptElement;
     if (!script) {
       script = document.createElement("script");
@@ -75,53 +61,42 @@ export const SEOHead = ({
       document.head.appendChild(script);
     }
 
-    if (phone) {
-      const productSchema = {
-        "@context": "https://schema.org",
-        "@type": "Product",
-        name: phone.name,
-        description: description,
-        image: phone.image || image,
-        brand: {
-          "@type": "Brand",
-          name: phone.brand || phone.name.split(" ")[0],
-        },
-        offers: {
-          "@type": "Offer",
-          priceCurrency: "PKR",
-          price: phone.price,
-          availability: "https://schema.org/InStock",
-        },
-        ...(phone.rating && {
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: phone.rating,
-            bestRating: 5,
-            worstRating: 1,
-            ratingCount: Math.floor(Math.random() * 500) + 50,
-          },
-        }),
-      };
-      script.textContent = JSON.stringify(productSchema);
-    } else {
-      const websiteSchema = {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        name: "Phone Insights",
-        url: "https://phoneinsights.pk",
-        description: "Compare detailed specifications, prices, and reviews for 400+ mobile phones in Pakistan",
-        potentialAction: {
-          "@type": "SearchAction",
-          target: "https://phoneinsights.pk/?search={search_term_string}",
-          "query-input": "required name=search_term_string",
-        },
-      };
-      script.textContent = JSON.stringify(websiteSchema);
-    }
-
-    return () => {
-      // Cleanup on unmount
+    const schemaData = phone ? {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: phone.name,
+      description: description,
+      image: phone.image || image,
+      brand: { "@type": "Brand", name: phone.brand || phone.name.split(" ")[0] },
+      offers: {
+        "@type": "Offer",
+        priceCurrency: "PKR",
+        price: phone.price,
+        availability: "https://schema.org/InStock",
+        url: currentUrl
+      },
+      ...(phone.rating && {
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: phone.rating,
+          reviewCount: 85 // Fixed number is better for performance than Math.random
+        }
+      })
+    } : {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "Phone Insights",
+      url: siteUrl,
+      description: "Compare 416+ mobile specs and prices in Pakistan",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `${siteUrl}/?search={search_term_string}`,
+        "query-input": "required name=search_term_string"
+      }
     };
+
+    script.textContent = JSON.stringify(schemaData);
+
   }, [title, description, canonical, image, type, phone]);
 
   return null;

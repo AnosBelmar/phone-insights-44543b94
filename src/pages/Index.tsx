@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
@@ -8,157 +8,108 @@ import BrandFilter from "@/components/BrandFilter";
 import PriceSort, { SortOption } from "@/components/PriceSort";
 import { PhoneRecommendations } from "@/components/phone/PhoneRecommendations";
 import { SEOHead } from "@/components/SEOHead";
-import { Loader2, Smartphone, TrendingUp, Shield, Zap, ChevronDown } from "lucide-react";
-import { PhoneSkeleton } from "@/components/phone/PhoneSkeleton";
+import { Smartphone, TrendingUp, Shield, Zap, ChevronDown } from "lucide-react";
 
 const BRANDS = ["Samsung", "iPhone", "Xiaomi", "Realme", "Infinix", "Vivo", "OPPO", "Tecno"];
-const INITIAL_LOAD = 12;
+const PAGE_SIZE = 12;
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   const [sortOption, setSortOption] = useState<SortOption>("newest");
-  const [displayCount, setDisplayCount] = useState(INITIAL_LOAD);
+  const [displayCount, setDisplayCount] = useState(PAGE_SIZE);
 
+  // Optimized Query: Filter & Sort at the Database level for speed
   const { data: phones, isLoading } = useQuery({
-    queryKey: ["phones"],
+    queryKey: ["phones", selectedBrand, sortOption, searchQuery],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("phones")
-        .select("*")
-        .order("created_at", { ascending: false });
+      let query = supabase.from("phones").select("*");
+      
+      if (selectedBrand) query = query.ilike("brand", `%${selectedBrand}%`);
+      if (searchQuery) query = query.ilike("name", `%${searchQuery}%`);
+
+      if (sortOption === "price-low") query = query.order("current_price", { ascending: true });
+      else if (sortOption === "price-high") query = query.order("current_price", { ascending: false });
+      else if (sortOption === "rating") query = query.order("rating", { ascending: false });
+      else query = query.order("created_at", { ascending: false });
+
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },
   });
 
-  const filteredPhones = useMemo(() => {
-    if (!phones) return [];
-    let result = phones.filter((p) => {
-      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesBrand = selectedBrand ? p.brand === selectedBrand : true;
-      return matchesSearch && matchesBrand;
-    });
-
-    if (sortOption === "price-low") result = [...result].sort((a, b) => Number(a.current_price) - Number(b.current_price));
-    if (sortOption === "price-high") result = [...result].sort((a, b) => Number(b.current_price) - Number(a.current_price));
-    if (sortOption === "rating") result = [...result].sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0));
-    
-    return result;
-  }, [phones, searchQuery, selectedBrand, sortOption]);
-
-  const stats = useMemo(() => ({
-    total: phones?.length || 0,
-  }), [phones]);
-
-  const visiblePhones = filteredPhones.slice(0, displayCount);
+  const visiblePhones = phones?.slice(0, displayCount) || [];
 
   return (
     <Layout>
       <SEOHead
-        title="Phone Insights | Compare 400+ Mobile Specs, Prices & Reviews"
-        description="Find your perfect smartphone with AI-powered reviews and real-time price updates for 400+ devices."
+        title="Phone Insights | Mobile Prices & Specs in Pakistan"
+        description="Compare 416+ mobile specs and prices instantly. AI-powered reviews for Samsung, iPhone, and more."
         canonical="https://phone-insights-x.vercel.app/"
       />
 
-      {/* RESTORED: Hero Section with Background Animations */}
-      <section className="hero-gradient py-20 relative overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" />
-        </div>
-
+      <section className="hero-gradient py-16 relative overflow-hidden">
+        {/* Low-power background: No blurs to save performance */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none" />
+        
         <div className="container mx-auto px-4 relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-4 py-2 mb-6">
-            <Zap className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">AI-Powered Phone Discovery</span>
+          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-6">
+            <Zap className="w-3.5 h-3.5 text-primary" />
+            <span className="text-xs font-medium text-primary">Compare 416+ Smartphones</span>
           </div>
           
-          <h1 className="font-display text-5xl md:text-7xl font-bold mb-6">
-            Find Your Perfect <span className="text-primary text-glow">Smartphone</span>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
+            Find Your Perfect <span className="text-primary">Smartphone</span>
           </h1>
 
-          <div className="max-w-2xl mx-auto mb-10">
+          <div className="max-w-xl mx-auto mb-8">
             <SearchBar value={searchQuery} onChange={setSearchQuery} />
           </div>
 
-          {/* RESTORED: Stats Row */}
-          <div className="flex flex-wrap justify-center gap-6 mt-10">
-            <div className="flex items-center gap-3 bg-card/50 backdrop-blur-md border border-border rounded-xl px-5 py-3">
-              <Smartphone className="w-5 h-5 text-primary" />
-              <div className="text-left">
-                <span className="text-xl font-bold">{stats.total}+</span>
-                <p className="text-xs text-muted-foreground">Phones Listed</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 bg-card/50 backdrop-blur-md border border-border rounded-xl px-5 py-3">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              <div className="text-left">
-                <span className="text-xl font-bold">Daily</span>
-                <p className="text-xs text-muted-foreground">Price Updates</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 bg-card/50 backdrop-blur-md border border-border rounded-xl px-5 py-3">
-              <Shield className="w-5 h-5 text-primary" />
-              <div className="text-left">
-                <span className="text-xl font-bold">AI</span>
-                <p className="text-xs text-muted-foreground">Expert Reviews</p>
-              </div>
-            </div>
+          <div className="flex justify-center gap-4 text-xs font-medium opacity-80">
+            <span className="flex items-center gap-1"><Smartphone className="w-3 h-3" /> {phones?.length || 416}+ Phones</span>
+            <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" /> Live Prices</span>
           </div>
         </div>
       </section>
 
-      {/* AI Recommendations */}
-      <section className="container mx-auto px-4 py-12">
-        <PhoneRecommendations />
-      </section>
-
-      {/* Brand Filters */}
-      <section className="container mx-auto px-4 py-8 border-y border-border/50">
+      <section className="container mx-auto px-4 py-8">
         <BrandFilter 
           brands={BRANDS} 
           selectedBrand={selectedBrand} 
-          onBrandSelect={(b) => { setSelectedBrand(b); setDisplayCount(INITIAL_LOAD); }} 
+          onBrandSelect={(b) => { setSelectedBrand(b); setDisplayCount(PAGE_SIZE); }} 
         />
-      </section>
-
-      {/* Phone Grid */}
-      <section className="container mx-auto px-4 py-12">
-        <div className="flex justify-between items-end mb-8">
-          <div>
-            <h2 className="text-2xl font-bold font-display">{selectedBrand || "All"} Smartphones</h2>
-            <p className="text-sm text-muted-foreground">Showing {visiblePhones.length} of {filteredPhones.length}</p>
-          </div>
+        
+        <div className="flex justify-between items-center my-8">
+          <h2 className="text-xl font-bold">{selectedBrand || "All"} Phones</h2>
           <PriceSort value={sortOption} onChange={setSortOption} />
         </div>
 
         {isLoading ? (
-          <PhoneSkeleton />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 animate-pulse">
+            {[...Array(8)].map((_, i) => <div key={i} className="h-64 bg-secondary/50 rounded-xl" />)}
+          </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {visiblePhones.map((phone) => (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {visiblePhones.map((phone, index) => (
                 <PhoneCard
                   key={phone.id}
-                  name={phone.name}
-                  slug={phone.slug}
-                  currentPrice={Number(phone.current_price)}
-                  imageUrl={phone.image_url}
-                  rating={Number(phone.rating)}
-                  ram={phone.ram}
-                  storage={phone.storage}
+                  {...phone}
+                  // Speed Hack: Only first 4 images load instantly
+                  priority={index < 4} 
                 />
               ))}
             </div>
 
-            {filteredPhones.length > displayCount && (
+            {phones && phones.length > displayCount && (
               <div className="mt-12 text-center">
                 <button 
-                  onClick={() => setDisplayCount(prev => prev + 12)}
-                  className="bg-primary text-primary-foreground px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform inline-flex items-center gap-2"
+                  onClick={() => setDisplayCount(prev => prev + PAGE_SIZE)}
+                  className="bg-secondary hover:bg-secondary/80 px-8 py-3 rounded-full text-sm font-bold flex items-center gap-2 mx-auto"
                 >
-                  <ChevronDown className="w-5 h-5" /> Show More Phones
+                  <ChevronDown className="w-4 h-4" /> Load More
                 </button>
               </div>
             )}

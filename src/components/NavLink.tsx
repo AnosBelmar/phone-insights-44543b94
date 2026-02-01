@@ -1,28 +1,35 @@
-import { NavLink as RouterNavLink, NavLinkProps } from "react-router-dom";
-import { forwardRef } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
-interface NavLinkCompatProps extends Omit<NavLinkProps, "className"> {
-  className?: string;
-  activeClassName?: string;
-  pendingClassName?: string;
-}
+const links = [
+  { name: "Home", href: "/" },
+  { name: "About", href: "/about" },
+  { name: "Contact", href: "/contact" },
+  { name: "Privacy", href: "/privacy" },
+];
 
-const NavLink = forwardRef<HTMLAnchorElement, NavLinkCompatProps>(
-  ({ className, activeClassName, pendingClassName, to, ...props }, ref) => {
-    return (
-      <RouterNavLink
-        ref={ref}
-        to={to}
-        className={({ isActive, isPending }) =>
-          cn(className, isActive && activeClassName, isPending && pendingClassName)
-        }
-        {...props}
-      />
-    );
-  },
-);
+export const NavLinks = ({ className, onClick }: { className?: string; onClick?: () => void }) => {
+  const location = useLocation();
 
-NavLink.displayName = "NavLink";
+  return (
+    <div className={cn("flex items-center gap-6", className)}>
+      {links.map((link) => (
+        <Link
+          key={link.href}
+          to={link.href}
+          onClick={onClick}
+          className={cn(
+            "text-sm font-medium transition-colors hover:text-primary",
+            location.pathname === link.href
+              ? "text-foreground"
+              : "text-muted-foreground"
+          )}
+        >
+          {link.name}
+        </Link>
+      ))}
+    </div>
+  );
+};
 
-export { NavLink };
+export default NavLinks;

@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-# Direct Google to your sitemap
+Disallow: /admin
 Sitemap: https://phone-insights-x.vercel.app/sitemap.xml
 User-agent: Googlebot
 Allow: /
